@@ -1,5 +1,5 @@
 # How to Run the program
-Tolong dibaca dulu supaya ga bingung harus ngapain.
+Tolong dibaca dulu supaya ga bingung harus ngapain! :D
 
 ## Initialize SSH
 1. Download 2 file ssh di drivenya, bisa [disini](https://drive.google.com/drive/folders/1rCcgEeF72cAzuxSro-eWT64wC0jnG7h6?usp=sharing), terus download yang ```k02-05``` dan ```k02-05.pub```.
@@ -62,24 +62,31 @@ IP publik yang disediakan asisten ada 2 yaitu.
     ```bash
     $ echo -e "10.0.1.7\n10.0.1.4" > hostname
     ```
-5. Compile program dan salin executable serta test case ke semua server menggunakan scp. Dapat dilakukan dengan menjalankan command berikut.
+5. Compile program yang baru saja dibuat dengan command berikut.
+    - Untuk Serial, jalankan command dibawah
+        ```bash
+        $ make compile-serial
+        ```
+    - Untuk MPI, jalankan command dibawah
+        ```bash
+        $ make compile-mpi
+        ```
+    Selanjutnya, salin executable, test cases, makefile, dan result folder ke semua server menggunakan scp. Dapat dilakukan dengan menjalankan command berikut.
     ```bash
-    $ scp -r bin k02-05@4.145.183.206:/home/k02-05
-    $ scp hostname k02-05@4.145.183.206:/home/k02-05
-    $ scp -r test_cases k02-05@4.145.183.206:/home/k02-05
-    $ scp makefile k02-05@4.145.183.206:/home/k02-05
+    $ make copy-server
     ```
-6. Lakukan SSH lagi ke server utama
+6. Jika langkah sebelumnya berhasil, maka Anda akan masuk ke dalam server publik. Langkah berikutnya, adalah mendistribusikan isinya ke semua server private dengan mengetikkan command berikut.
     ```bash
-    $ ssh k02-05@4.145.183.206
+    $ make copy-branch-server
     ```
+    Kemudian untuk menjalankan program ketikkan command dibawah.
     - Untuk Serial, jalankan command dibawah
         ```bash
         $ make serial
         ```
     - Untuk MPI, chmod +x executable dan jalankan dengan mpirun, pada command dibawah, MPI dijalankan dengan 2 process
         ```bash
-        $ mpi run
+        $ make mpi
         ```
 7. Jika semua prosedur diatas dijalankan, maka seharusnya program dapat berjalan dengan baik!
 
@@ -89,11 +96,24 @@ Jika sebelumnya sudah melakukan prosedur diatas dan melakukan perubahan yang ing
     ```bash
     $ make compile-serial
     $ make copy-server
+    $ make copy-branch-server
     $ make serial
     ```
 2. Untuk MPI, jalankan command di bawah
     ```bash
     $ make compile-mpi
     $ make copy-server
-    $ mpi run
+    $ make copy-branch-server
+    $ make mpi
     ```
+    Untuk menjalankannya secara lokal, jalankan command dibawah
+    ```bash
+    $ make compile-mpi
+    $ make mpi-local
+    ```
+    Untuk menjalankan debugger dengan valgrind (pastikan sudah menginstall sebelumnya), jalankan command dibawah
+    ```bash
+    $ make compile-mpi
+    $ make mpi-debug
+    ```
+    Anda juga dapat mengubah konfigurasi jumlah proses dengan mengubah langsung konfigurasi makefile.
