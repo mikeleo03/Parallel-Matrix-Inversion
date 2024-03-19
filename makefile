@@ -2,8 +2,13 @@
 OUTPUT_FOLDER = bin
 TEST_FOLDER = result
 
+# JOIN
 # Run all
-all: mpi-local serial
+all-local: mpi-local serial
+all: mpi serial
+
+compare:
+	@diff -s ${TEST_FOLDER}/open-mpi.txt ${TEST_FOLDER}/serial.txt
 
 # SERVER
 # Copy to server
@@ -26,7 +31,7 @@ compile-serial:
 
 # Run the serial in server
 serial:
-	@time ./${OUTPUT_FOLDER}/serial < ./test_cases/64.txt > ${TEST_FOLDER}/serial.txt
+	@time ./${OUTPUT_FOLDER}/serial < ./test_cases/2048.txt > ${TEST_FOLDER}/serial.txt
 
 # OPEN MPI
 # Compile the MPI
@@ -35,19 +40,17 @@ compile-mpi:
 
 # Run the MPI in server
 mpi: 
-	@echo Doing chmod
 	@chmod +x ${OUTPUT_FOLDER}/open-mpi
-	@echo Running
-	@time mpirun --hostfile hostname ./${OUTPUT_FOLDER}/open-mpi < ./test_cases/64.txt > ${TEST_FOLDER}/open-mpi.txt
+	@time mpirun --hostfile hostname ./${OUTPUT_FOLDER}/open-mpi < ./test_cases/2048.txt > ${TEST_FOLDER}/open-mpi.txt
 
 # Run the MPI in local
 mpi-local: 
 	@chmod +x ${OUTPUT_FOLDER}/open-mpi
-	@time mpirun -n 4 ${OUTPUT_FOLDER}/open-mpi < test_cases/64.txt > ${TEST_FOLDER}/open-mpi.txt
+	@time mpirun -n 4 ${OUTPUT_FOLDER}/open-mpi < test_cases/2048.txt > ${TEST_FOLDER}/open-mpi.txt
 
 # Run the MPI debug in local
 mpi-debug: 
 	@echo Doing chmod
 	@chmod +x ${OUTPUT_FOLDER}/open-mpi
 	@echo Running
-	@mpirun -n 4 valgrind --track-origins=yes ${OUTPUT_FOLDER}/open-mpi < test_cases/64.txt > ${TEST_FOLDER}/open-mpi.txt
+	@mpirun -n 4 valgrind --track-origins=yes ${OUTPUT_FOLDER}/open-mpi < test_cases/2048.txt > ${TEST_FOLDER}/open-mpi.txt
