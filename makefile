@@ -31,7 +31,7 @@ compile-serial:
 
 # Run the serial in server
 serial:
-	@time ./${OUTPUT_FOLDER}/serial < ./test_cases/2048.txt > ${TEST_FOLDER}/serial.txt
+	@time ./${OUTPUT_FOLDER}/serial < ./test_cases/4.txt > ${TEST_FOLDER}/serial.txt
 
 # OPEN MPI
 # Compile the MPI
@@ -46,7 +46,7 @@ mpi:
 # Run the MPI in local
 mpi-local: 
 	@chmod +x ${OUTPUT_FOLDER}/open-mpi
-	@time mpirun -n 4 ${OUTPUT_FOLDER}/open-mpi < test_cases/2048.txt > ${TEST_FOLDER}/open-mpi.txt
+	@time mpirun -n 4 ${OUTPUT_FOLDER}/open-mpi < test_cases/4.txt > ${TEST_FOLDER}/open-mpi.txt
 
 # Run the MPI debug in local
 mpi-debug: 
