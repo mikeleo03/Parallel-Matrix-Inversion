@@ -166,9 +166,8 @@ void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank
                     0, MPI_COMM_WORLD);
         for (i = 0; i < matrix.size; ++i) {
             for (j = 0; j < matrix.size * 2; ++j) {
-               cout << globalMatrix.mat[i * matrix.size * 2 + j] << " ";
+               matrix.mat[i * matrix.size * 2 + j] = globalMatrix.mat[i * matrix.size * 2 + j];
             }
-            cout << endl;
         }
     } else {
         MPI_Gather(matrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE, NULL, local_n_row * matrix.size * 2, MPI_DOUBLE,
@@ -238,7 +237,7 @@ int main(int argc, char** argv) {
     // parallel_reduce_to_unit(matrix, my_rank, num_procs);
     
     // Print the result
-    // print_result(matrix, my_rank);
+    print_result(matrix, my_rank);
     
     // Free the memory allocated for the matrix
     deallocate_matrix(matrix);
