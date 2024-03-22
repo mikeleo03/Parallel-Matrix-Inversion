@@ -57,8 +57,8 @@ void deallocate_matrix(GaussianMatrix& matrix) {
     delete[] matrix.mat;
 }
 
-// Perform partial pivoting and reduce the matrix to a diagonal form
-void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank, int num_procs) {
+// Inverse the matrix
+void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_rank, int num_procs) {
     int i, j;
     double d;
     int n = matrix.size;
@@ -78,7 +78,17 @@ void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank
         double *pivot_row = new double[n * 2];
         // Search pivot only if process has the needed row(s)
         double pivot_value = 0;
+        double *row_i = new double[n * 2];
         if (i <= endIdx) {
+            if (i >= startIdx) { // This process has row i
+                for (j = 0; j < 2 * n; ++j) { // Set row i
+                    row_i[j] = matrix.mat[(i-startIdx) * n * 2 + j];
+                }
+                // Send row i to root process if row i is not in root
+                if (my_rank != 0) {
+                    MPI_Send(row_i, n * 2, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+                }
+            }
             int pivot_row_idx = max(0, i-startIdx);
             pivot_value = matrix.mat[pivot_row_idx * n * 2 + pivot_row_idx];
 
@@ -93,6 +103,17 @@ void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank
             for (int k=0; k<n*2; ++k) {
                 pivot_row[k] = matrix.mat[pivot_row_idx * n * 2 + k];
             }
+        }
+        // Calculate which process has row i
+        int i_copy = i;
+        int row_i_root = 0;
+        while (i_copy > local_n_row-1) {
+            i_copy -= local_n_row;
+            row_i_root++;
+        }
+        if (my_rank == 0 && row_i_root != 0) {
+            // Receive row i to be broadcasted
+            MPI_Recv(row_i, n * 2, MPI_DOUBLE, row_i_root, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         // Send pivot row and its index to root (process 0)
         MPI_Gather(&adjusted_pivot_row_idx, 1, MPI_INT, pivot_rows_indexes, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -118,30 +139,15 @@ void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank
         // Broadcast pivot row to all processes
         MPI_Bcast(&adjusted_pivot_row_idx, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(rescaled_pivot_row, n * 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Bcast(row_i, n*2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-        double *row_i = new double[n * 2];
-        // Calculate which process has row i
-        int i_copy = i;
-        int row_i_root = 0;
-        while (i_copy > local_n_row-1) {
-            i_copy -= local_n_row;
-            row_i_root++;
-        }
         if (my_rank == row_i_root) {
+            // Swap row i with rescaled pivot row
             for (j = 0; j < 2 * n; ++j) {
-                row_i[j] = matrix.mat[(i-startIdx) * n * 2 + j];
                 matrix.mat[(i-startIdx) * n * 2 + j] = rescaled_pivot_row[j];
             }
-            // Send row i to root process
-            if (my_rank != 0) {
-                MPI_Send(row_i, n * 2, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-            }
         }
-        if (my_rank == 0 && row_i_root != 0) {
-            // Receive row i to be broadcasted
-            MPI_Recv(row_i, n * 2, MPI_DOUBLE, row_i_root, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
-        MPI_Bcast(row_i, n*2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
         if (adjusted_pivot_row_idx != i && adjusted_pivot_row_idx >= startIdx && adjusted_pivot_row_idx <= endIdx) {
             for (j = 0; j < 2 * n; ++j) {
                 matrix.mat[(adjusted_pivot_row_idx-startIdx) * n * 2 + j] = row_i[j];
@@ -157,48 +163,18 @@ void parallel_partial_pivot(GaussianMatrix& matrix, int local_n_row, int my_rank
                 }
             }
         }
+        delete[] row_i;
+        delete[] pivot_row;
     }
     
+    // Combine all matrix
     if (my_rank == 0) {
-        GaussianMatrix globalMatrix;
-        globalMatrix.mat = new double[matrix.size * matrix.size * 2];
-        MPI_Gather(matrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE, globalMatrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE,
+        MPI_Gather(matrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE, matrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE,
                     0, MPI_COMM_WORLD);
-        for (i = 0; i < matrix.size; ++i) {
-            for (j = 0; j < matrix.size * 2; ++j) {
-               matrix.mat[i * matrix.size * 2 + j] = globalMatrix.mat[i * matrix.size * 2 + j];
-            }
-        }
     } else {
         MPI_Gather(matrix.mat, local_n_row * matrix.size * 2, MPI_DOUBLE, NULL, local_n_row * matrix.size * 2, MPI_DOUBLE,
                     0, MPI_COMM_WORLD);
     }
-}
-
-// Reduce the matrix to a unit matrix
-void parallel_reduce_to_unit(GaussianMatrix& matrix, int my_rank, int num_procs) {
-    int i, j;
-    double d;
-    int n = matrix.size;
-
-    // Perform back substitution locally within each process
-    for (i = n - 1; i >= 0; --i) {
-        d = matrix.mat[i * n * 2 + i];
-        for (j = i; j < 2 * n; ++j) {
-            matrix.mat[i * n * 2 + j] /= d;
-        }
-
-        // Eliminate the elements above the pivot
-        for (int row = 0; row < i; ++row) {
-            d = matrix.mat[row * n * 2 + i];
-            for (j = i; j < 2 * n; ++j) {
-                matrix.mat[row * n * 2 + j] -= matrix.mat[i * n * 2 + j] * d;
-            }
-        }
-    }
-
-    // Synchronize all processes before proceeding
-    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 // Function to print the resulting matrix
@@ -231,10 +207,7 @@ int main(int argc, char** argv) {
     input_matrix(matrix, local_n_row, my_rank, num_procs);
     
     // Perform partial pivoting
-    parallel_partial_pivot(matrix, local_n_row, my_rank, num_procs);
-    
-    // Reduce the matrix to a unit matrix
-    // parallel_reduce_to_unit(matrix, my_rank, num_procs);
+    parallel_inverse_matrix(matrix, local_n_row, my_rank, num_procs);
     
     // Print the result
     print_result(matrix, my_rank);
