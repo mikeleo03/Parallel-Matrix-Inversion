@@ -19,5 +19,5 @@ Bisa dilihat di README-run.md
     - Bagi baris pivot dengan *leading coefficient*-nya.
     - Kirimkan baris pivot yang sudah dibagi ke seluruh proses.
     - Tukar baris pivot dengan baris i jika tidak sama.
-    - Tiap proses mengurangi baris yang dimilikinya dengan baris pivot sehingga semua nilai non-diagonal pada kolom i menjadi 0.
+    - Tiap proses mengurangi baris yang dimilikinya dengan hasil perkalian baris pivot sehingga semua nilai non-diagonal pada kolom i menjadi 0.
 4. Setelah seluruh baris selesai diproses, masing-masing proses mengirimkan baris yang dimiliki ke proses 0.
