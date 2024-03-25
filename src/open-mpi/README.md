@@ -25,8 +25,10 @@ Program ini menggunakan metode pembagian data antar-proses, di mana matriks inpu
 
 ## 📸 &nbsp;Dokumentasi Hasil Eksekusi
 Hasil ekesekusi lokal  (*data atas menggunakan openMPi dan data bawah menggunakan serial*).
+
 ![demo1](../../public/mpi-local.png)
 Hasil ekekusi menggunakan server.
+
 ![demo2](../../public/mpi-server.png)
 
 Secara umum diperoleh speedup hingga $2 \times$ lipat! 🤩
