@@ -10,6 +10,11 @@ all: mpi serial
 compare:
 	@diff -s ${TEST_FOLDER}/open-mpi.txt ${TEST_FOLDER}/serial.txt
 
+# TEST CASE
+# Make test case
+tc:
+	@./test_cases/generator
+
 # SERVER
 # Copy to server
 copy-server:
