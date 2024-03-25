@@ -1,5 +1,5 @@
-# 🔢📈 Tugas Kecil 1 - Paralel Invers Matrix dengan OpenMPI
-> Tugas Kecil IF3230 Sistem Paralel dan Terdistribusi, Melakukan Paralelisasi Invers Matrix Metode Gauss-Jordan dengan Open MPI.
+# 🔢📈 Tugas Kecil 1 - Paralel Invers Matrix dengan Open MPI
+> Tugas Kecil 1 IF3230 Sistem Paralel dan Terdistribusi, Melakukan Paralelisasi Invers Matrix Metode Gauss-Jordan dengan Open MPI.
 
 
 ## ❓ &nbsp;Apa itu Open MPI?
@@ -21,14 +21,15 @@ Proses dimulai dengan penerimaan matriks input, di mana setiap proses akan mempe
 4. Setelah seluruh baris selesai diproses, masing-masing proses mengirimkan baris yang dimiliki kembali ke proses induk.
 
 ## 🔍 &nbsp;Analisis Implementasi Solusi
-Program ini menggunakan metode pembagian data antar-proses, di mana matriks input dibagi secara merata di antara proses-proses yang ada. Pendekatan ini dipilih karena **memungkinkan pemanfaatan sumber daya secara efisien** pada sistem terdistribusi, dengan memungkinkan proses-proses untuk bekerja secara paralel pada bagian-bagian matriks yang berbeda. Hal ini juga membuat **setiap proses tidak memproses keseluruhan matriks** yang membuat paralelisasi berjalan kurang optimal. Dengan demikian, setiap proses dapat fokus pada tugas yang diberikan tanpa perlu saling menunggu. Selain itu, dengan menggunakan skema pembagian data antar-proses, dapat **meminimalkan overhead komunikasi antar-proses** karena masing-masing proses hanya bertanggung jawab untuk memproses data yang diterimanya, tanpa perlu terlalu sering berkomunikasi dengan proses lain. Komunikasi hanya dilakukan saat "mengembalikan" nilai kalkulasi ke proses induk. Hal ini menghasilkan **kinerja yang lebih baik** dalam pemrosesan paralel invers matriks, terutama pada sistem yang memiliki banyak prosesor atau core.
+Program ini menggunakan metode pembagian data antar-proses, di mana matriks input dibagi secara merata di antara proses-proses yang ada. Pendekatan ini dipilih karena **memungkinkan pemanfaatan sumber daya secara efisien** pada sistem terdistribusi, dengan memungkinkan proses-proses untuk bekerja secara paralel pada bagian-bagian matriks yang berbeda. Hal ini juga membuat **setiap proses tidak memproses keseluruhan matriks** yang membuat paralelisasi berjalan kurang optimal. Dengan demikian, setiap proses dapat fokus pada tugas yang diberikan tanpa perlu saling menunggu. Selain itu, dengan menggunakan skema pembagian data antar-proses, dapat **meminimalkan overhead komunikasi antar-proses** karena masing-masing proses hanya bertanggung jawab untuk memproses data yang diterimanya, tanpa perlu terlalu sering berkomunikasi dengan proses lain. Komunikasi hanya dilakukan saat "mengembalikan" nilai kalkulasi ke proses induk. Hal ini menghasilkan **kinerja yang lebih baik** dalam pemrosesan paralel invers matriks, terutama pada sistem yang memiliki banyak prosesor atau *core*.
 
 ## 📸 &nbsp;Dokumentasi Hasil Eksekusi
-Hasil ekesekusi lokal  (*data atas menggunakan openMPi dan data bawah menggunakan serial*).
+Hasil ekesekusi lokal  (*data atas menggunakan Open MPI dan data bawah menggunakan serial*).
 
 ![demo1](../../public/mpi-local.png)
+
 Hasil ekekusi menggunakan server.
 
 ![demo2](../../public/mpi-server.png)
 
-Secara umum diperoleh speedup hingga $2 \times$ lipat! 🤩
+Secara umum diperoleh *speed-up* hingga $2 \times$ lipat! 🤩
