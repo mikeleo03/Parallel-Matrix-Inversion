@@ -9,7 +9,7 @@ Open MPI (Open Message Passing Interface) adalah sebuah implementasi dari standa
 Proses dimulai dengan penerimaan matriks input, di mana setiap proses akan memperoleh bagian dari matriks tersebut. Setiap proses kemudian mencari baris pivot terbaik dari bagian matriks yang diterimanya dan mengirimkan informasi ini ke proses induk. Proses induk, dalam kasus ini proses $0$, akan memilih pivot terbaik dari seluruh informasi yang diterima, dan kemudian membagi baris pivot dengan *leading coefficient*-nya sebelum mengirimkan hasilnya kembali ke semua proses. Selanjutnya, setiap proses akan menyesuaikan matriksnya dengan baris pivot yang sudah dibagi dan mengurangi nilai-nilai non-diagonal pada kolom yang sesuai. Setelah semua baris diproses, masing-masing proses akan mengirimkan bagian matriks yang dimilikinya ke proses $0$.
 
 ## 💡 &nbsp;Detail Prosedur Implementasi
-1. Terima masukan sebuah matriks berukuran $n \times n$ dan inisiasi pula matriks identitas $n \times n$ di sisi kanannya. Hasil kahir yang terbentuk adalah sebuah matriks berukuran $n \times 2n$.
+1. Terima masukan sebuah matriks berukuran $n \times n$ dan inisiasi pula matriks identitas $n \times n$ di sisi kanannya. Hasil akhir yang terbentuk adalah sebuah matriks berukuran $n \times 2n$.
 2. Bagi baris-baris dari matriks yang terbentuk ke seluruh proses yang ada secara merata.
 3. Selanjutnya, untuk tiap baris $i$ pada matriks :
     - Setiap proses akan mencari baris pivot terbaik dari semua baris yang dimilikinya.
