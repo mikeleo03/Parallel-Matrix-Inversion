@@ -1,7 +1,7 @@
-# *How to Run the program*
+# ⚙️🤔 *How to Run the program*
 Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggunakan server, hingga apa yang harus dilakukan jika melakukan *additional changes*.
 
-## *Initialize* SSH
+## 🔑 &nbsp;*Initialize* SSH
 1. *Download* 2 file ssh  [disini](https://drive.google.com/drive/folders/1rCcgEeF72cAzuxSro-eWT64wC0jnG7h6?usp=sharing), kemudian *download* yang ```k02-05``` dan ```k02-05.pub```.
 2. Jika menggunakan WSL, setelah di *download*, pindahkan SSH key (keduanya) ke *directory* WSL ```(/home/[username]/)```. Bukan pada *directory* Windows ```(/mnt/[drive letter]/[any]/**/*)```. Masukkan kedanya di folder ```.ssh```.
 3. *Edit permission* SSH key dengan ```chmod```.
@@ -33,7 +33,7 @@ Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggun
     Jika sudah, jangan lupa untuk melakukan *save* (```Ctrl + S```) dan *exit* (```Ctrl + X```).
 7. Jika semua langkah diatas sudah dilakukan, SSH sudah siap untuk menembak server!
 
-## Menggunakan server
+## 🗄️ &nbsp;Menggunakan Server
 1. Hubungkan dengan salah satu server menggunakan SSH melewati IP publik. 
 IP publik yang disediakan asisten, ada 2 yaitu.
     ```
@@ -90,7 +90,7 @@ IP publik yang disediakan asisten, ada 2 yaitu.
         ```
 7. Jika semua prosedur diatas dijalankan, maka seharusnya program dapat berjalan dengan baik!
 
-## Additional changes
+## 🛠️ &nbsp;*Additional Changes*
 Jika sebelumnya sudah melakukan prosedur diatas dan melakukan perubahan yang ingin di *update*, maka kedepannya yang perlu dilakukan hanya *run command* berikut.
 1. Untuk Serial, jalankan *command* di bawah
     ```bash
