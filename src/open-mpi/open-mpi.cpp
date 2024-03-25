@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// Gaussian Matrix Struct
 struct GaussianMatrix {
     int size;
     double *mat;
@@ -14,6 +15,7 @@ void initialize_matrix(GaussianMatrix& matrix, int& local_n_row, int my_rank, in
         cin >> matrix.size;
         local_n_row = matrix.size / num_procs;
     }
+
     // Broadcast the number of rows per process
     MPI_Bcast(&matrix.size, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&local_n_row, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -69,10 +71,12 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
     int endIdx = startIdx + local_n_row - 1;
     int* pivot_rows_indexes;
     double* pivot_rows;
+
     if (my_rank == 0) {
         pivot_rows_indexes = new int[num_procs];
         pivot_rows = new double[n * 2 * num_procs];
     }
+
     for (i = 0; i < n; ++i) {
         int adjusted_pivot_row_idx = -1;
         double *pivot_row = new double[n * 2];
@@ -89,6 +93,7 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
                     MPI_Send(row_i, n * 2, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
                 }
             }
+
             int pivot_row_idx = max(0, i-startIdx);
             pivot_value = matrix.mat[pivot_row_idx * n * 2 + pivot_row_idx];
 
@@ -99,6 +104,7 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
                     pivot_value = matrix.mat[row * n * 2 + i];
                 }
             }
+
             adjusted_pivot_row_idx = pivot_row_idx + startIdx;
             for (int k=0; k<n*2; ++k) {
                 pivot_row[k] = matrix.mat[pivot_row_idx * n * 2 + k];
@@ -111,10 +117,12 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
             i_copy -= local_n_row;
             row_i_root++;
         }
+
         if (my_rank == 0 && row_i_root != 0) {
             // Receive row i to be broadcasted
             MPI_Recv(row_i, n * 2, MPI_DOUBLE, row_i_root, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
+
         // Send pivot row and its index to root (process 0)
         MPI_Gather(&adjusted_pivot_row_idx, 1, MPI_INT, pivot_rows_indexes, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Gather(pivot_row, n * 2, MPI_DOUBLE, pivot_rows, n * 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -136,6 +144,7 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
                 rescaled_pivot_row[k] = pivot_row[k]/pivot_value;
             }
         }
+
         // Broadcast pivot row to all processes
         MPI_Bcast(&adjusted_pivot_row_idx, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(rescaled_pivot_row, n * 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -163,6 +172,7 @@ void parallel_inverse_matrix(GaussianMatrix& matrix, int local_n_row, int my_ran
                 }
             }
         }
+        
         delete[] row_i;
         delete[] pivot_row;
     }
