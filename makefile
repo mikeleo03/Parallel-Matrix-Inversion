@@ -4,7 +4,7 @@ TEST_FOLDER = result
 
 # JOIN
 # Run all
-all-local: mpi-local serial
+all-local: mpi-local openmp-local serial
 all: mpi serial
 
 compare:
@@ -59,3 +59,13 @@ mpi-debug:
 	@chmod +x ${OUTPUT_FOLDER}/open-mpi
 	@echo Running
 	@mpirun -n 4 valgrind --track-origins=yes ${OUTPUT_FOLDER}/open-mpi < test_cases/2048.txt > ${TEST_FOLDER}/open-mpi.txt
+
+# OPEN MP
+# Compile the OPEN MP
+compile-openmp: 
+	@g++ src/open-mp/open-mp.cpp --openmp -o $(OUTPUT_FOLDER)/open-mp -lm
+
+# Run the OPEN MP in local
+openmp-local: 
+	@chmod +x ${OUTPUT_FOLDER}/open-mpi
+	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
