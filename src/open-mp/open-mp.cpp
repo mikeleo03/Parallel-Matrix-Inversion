@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// Struct to represent the Gaussian Matrix
 struct GaussianMatrix {
     int size;
     double *mat;
@@ -39,35 +40,32 @@ void deallocate_matrix(GaussianMatrix& matrix) {
 
 // Perform partial pivoting and reduce the matrix to a diagonal form
 void parallel_partial_pivot(GaussianMatrix& matrix) {
-    int i, j;
-    double d;
-    int n = matrix.size;
+    double *mat = matrix.mat;
 
-    // Perform pivoting
-    for (i = 0; i < n - 1; ++i) {
+    // Perform Gaussian elimination with pivoting
+    for (int i = 0; i < matrix.size; ++i) {
         int pivot_row = i;
-        double pivot_value = matrix.mat[i * matrix.size * 2 + i];
-
-        // Find the row with the maximum value in the current column
-        for (int row = i + 1; row < n; ++row) {
-            if (abs(matrix.mat[row * matrix.size * 2 + i]) > abs(pivot_value)) {
+        double pivot_value = abs(mat[i * matrix.size * 2 + i]);
+        
+        // Find the maximum element in the current column
+        for (int row = i + 1; row < matrix.size; ++row) {
+            if (abs(mat[row * matrix.size * 2 + i]) > pivot_value) {
                 pivot_row = row;
-                pivot_value = matrix.mat[row * matrix.size * 2 + i];
+                pivot_value = abs(mat[row * matrix.size * 2 + i]);
             }
         }
 
         // Swap rows if necessary
-        if (pivot_row != i) {
-            for (j = 0; j < 2 * n; ++j) {
-                swap(matrix.mat[i * matrix.size * 2 + j], matrix.mat[pivot_row * matrix.size * 2 + j]);
-            }
+        for (int k = 0; k < matrix.size * 2; ++k) {
+            swap(mat[i * matrix.size * 2 + k], mat[pivot_row * matrix.size * 2 + k]);
         }
 
-        // Eliminate the elements below the pivot
-        for (int row = i + 1; row < n; ++row) {
-            d = matrix.mat[row * matrix.size * 2 + i] / matrix.mat[i * matrix.size * 2 + i];
-            for (j = i; j < 2 * n; ++j) {
-                matrix.mat[row * matrix.size * 2 + j] -= matrix.mat[i * matrix.size * 2 + j] * d;
+        // Parallelize row operations to create upper triangular matrix
+        #pragma omp parallel for shared(mat) // Parallelize row operations
+        for (int row = i + 1; row < matrix.size; ++row) {
+            double factor = mat[row * matrix.size * 2 + i] / mat[i * matrix.size * 2 + i];
+            for (int j = i; j < matrix.size * 2; ++j) {
+                mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * factor;
             }
         }
     }
@@ -75,22 +73,23 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
 
 // Reduce the matrix to a unit matrix
 void parallel_reduce_to_unit(GaussianMatrix& matrix) {
-    int i, j;
-    double d;
-    int n = matrix.size;
+    double *mat = matrix.mat;
 
-    // Perform back substitution
-    for (i = n - 1; i >= 0; --i) {
-        d = matrix.mat[i * matrix.size * 2 + i];
-        for (j = i; j < 2 * n; ++j) {
-            matrix.mat[i * matrix.size * 2 + j] /= d;
+    // Back substitution to obtain the inverse matrix
+    for (int i = matrix.size - 1; i >= 0; --i) {
+        double factor = mat[i * matrix.size * 2 + i];
+        
+        #pragma omp parallel for shared(mat, factor)
+        for (int j = 0; j < matrix.size * 2; ++j) {
+            mat[i * matrix.size * 2 + j] /= factor;
         }
 
-        // Eliminate the elements above the pivot
-        for (int row = 0; row < i; ++row) {
-            d = matrix.mat[row * matrix.size * 2 + i];
-            for (j = i; j < 2 * n; ++j) {
-                matrix.mat[row * matrix.size * 2 + j] -= matrix.mat[i * matrix.size * 2 + j] * d;
+        // Parallelize back substitution
+        #pragma omp parallel for shared(mat)
+        for (int row = i - 1; row >= 0; --row) {
+            double factor = mat[row * matrix.size * 2 + i];
+            for (int j = matrix.size * 2 - 1; j >= i; --j) {
+                mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * factor;
             }
         }
     }
@@ -107,10 +106,10 @@ void print_result(GaussianMatrix& matrix) {
     }
 }
 
-int main(int argc, char** argv) {
+int main() {
     // Initaite object
     GaussianMatrix matrix;
-
+    
     // Initialize the matrix based on user input
     initialize_matrix(matrix);
     
@@ -122,7 +121,7 @@ int main(int argc, char** argv) {
     
     // Reduce the matrix to a unit matrix
     parallel_reduce_to_unit(matrix);
-        
+    
     // Print the result
     print_result(matrix);
     

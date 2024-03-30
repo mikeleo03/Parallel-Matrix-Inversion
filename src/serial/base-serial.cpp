@@ -112,7 +112,7 @@ void print_result(GaussianMatrix& matrix) {
     }
 }
 
-int main(int argc, char** argv) {
+int main() {
     // Initaite object
     GaussianMatrix matrix;
     
