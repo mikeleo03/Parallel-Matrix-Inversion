@@ -109,6 +109,8 @@ void print_result(GaussianMatrix& matrix) {
 int main() {
     // Initaite object
     GaussianMatrix matrix;
+    /* int num_threads = 16; // Set the desired number of threads
+    omp_set_num_threads(num_threads); */
     
     // Initialize the matrix based on user input
     initialize_matrix(matrix);

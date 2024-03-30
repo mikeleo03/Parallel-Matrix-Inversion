@@ -4,9 +4,11 @@ TEST_FOLDER = result
 
 # JOIN
 # Run all
-all-local: mpi-local openmp-local serial
-all: mpi serial
+all-local: openmp-local mpi-local serial
+all-compile: compile-serial compile-mpi compile-openmp
+all: openmp mpi serial
 
+# COMPARE
 compare:
 	@diff -s ${TEST_FOLDER}/open-mpi.txt ${TEST_FOLDER}/serial.txt
 
@@ -67,5 +69,10 @@ compile-openmp:
 
 # Run the OPEN MP in local
 openmp-local: 
-	@chmod +x ${OUTPUT_FOLDER}/open-mpi
+	@chmod +x ${OUTPUT_FOLDER}/open-mp
+	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
+
+# Run the OPEN MP in server
+openmp: 
+	@chmod +x ${OUTPUT_FOLDER}/open-mp
 	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt

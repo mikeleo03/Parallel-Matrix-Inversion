@@ -88,6 +88,10 @@ IP publik yang disediakan asisten, ada 2 yaitu.
         ```bash
         $ make mpi
         ```
+    - Untuk OpenMP, chmod +x executable dan jalankan dengan mpirun, pada *command* dibawah
+        ```bash
+        $ make openmp
+        ```
 7. Jika semua prosedur diatas dijalankan, maka seharusnya program dapat berjalan dengan baik!
 
 ## 🛠️ &nbsp;*Additional Changes*
@@ -96,7 +100,6 @@ Jika sebelumnya sudah melakukan prosedur diatas dan melakukan perubahan yang ing
     ```bash
     $ make compile-serial
     $ make copy-server
-    $ make copy-branch-server
     $ make serial
     ```
 2. Untuk MPI, jalankan *command* di bawah
@@ -117,3 +120,14 @@ Jika sebelumnya sudah melakukan prosedur diatas dan melakukan perubahan yang ing
     $ make mpi-debug
     ```
     Anda juga dapat mengubah konfigurasi jumlah proses dengan mengubah langsung konfigurasi makefile.
+3. Untuk OpenMP, jalankan *command* di bawah
+    ```bash
+    $ make compile-openmp
+    $ make copy-server
+    $ make openmp
+    ```
+    Untuk menjalankannya secara lokal, jalankan *command* dibawah
+    ```bash
+    $ make compile-openmp
+    $ make openmp-local
+    ```
