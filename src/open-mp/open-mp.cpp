@@ -41,6 +41,11 @@ void deallocate_matrix(GaussianMatrix& matrix) {
 // Perform partial pivoting and reduce the matrix to a diagonal form
 void parallel_partial_pivot(GaussianMatrix& matrix) {
     double *mat = matrix.mat;
+    int num_threads = omp_get_num_threads();
+    int local_row_count = matrix.size / num_threads;
+    if (local_row_count < 1) {
+        local_row_count = 1;
+    }
 
     // Perform Gaussian elimination with pivoting
     for (int i = 0; i < matrix.size; ++i) {
@@ -48,20 +53,32 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
         double pivot_value = abs(mat[i * matrix.size * 2 + i]);
         
         // Find the maximum element in the current column
-        for (int row = i + 1; row < matrix.size; ++row) {
-            if (abs(mat[row * matrix.size * 2 + i]) > pivot_value) {
-                pivot_row = row;
-                pivot_value = abs(mat[row * matrix.size * 2 + i]);
+        #pragma omp parallel shared(pivot_row, pivot_value, mat, local_row_count)
+        {
+            int local_pivot_row = i;
+            double local_pivot_value = 0;
+            #pragma omp for schedule(static, local_row_count)
+            for (int row = i + 1; row < matrix.size; ++row) {
+                if (abs(mat[row * matrix.size * 2 + i]) > local_pivot_value) {
+                    local_pivot_row = row;
+                    local_pivot_value = abs(mat[row * matrix.size * 2 + i]);
+                }
+            }
+            if (local_pivot_value > pivot_value) {
+                #pragma omp critical
+                pivot_row = local_pivot_row;
+                pivot_value = local_pivot_value;
             }
         }
 
         // Swap rows if necessary
+        #pragma omp parallel for schedule(dynamic) shared(mat)
         for (int k = 0; k < matrix.size * 2; ++k) {
             swap(mat[i * matrix.size * 2 + k], mat[pivot_row * matrix.size * 2 + k]);
         }
 
         // Parallelize row operations to create upper triangular matrix
-        #pragma omp parallel for schedule(dynamic, 4) shared(mat) // Parallelize row operations
+        #pragma omp parallel for schedule(dynamic) shared(mat) // Parallelize row operations
         for (int row = i + 1; row < matrix.size; ++row) {
             double factor = mat[row * matrix.size * 2 + i] / mat[i * matrix.size * 2 + i];
             for (int j = i; j < matrix.size * 2; ++j) {
@@ -79,13 +96,13 @@ void parallel_reduce_to_unit(GaussianMatrix& matrix) {
     for (int i = matrix.size - 1; i >= 0; --i) {
         double factor = mat[i * matrix.size * 2 + i];
         
-        #pragma omp parallel for schedule(dynamic, 4) shared(mat, factor)
+        #pragma omp parallel for schedule(dynamic) shared(mat, factor)
         for (int j = 0; j < matrix.size * 2; ++j) {
             mat[i * matrix.size * 2 + j] /= factor;
         }
 
         // Parallelize back substitution
-        #pragma omp parallel for schedule(dynamic, 4) shared(mat)
+        #pragma omp parallel for schedule(dynamic) shared(mat)
         for (int row = i - 1; row >= 0; --row) {
             double factor = mat[row * matrix.size * 2 + i];
             for (int j = matrix.size * 2 - 1; j >= i; --j) {
