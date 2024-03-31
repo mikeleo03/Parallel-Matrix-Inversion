@@ -61,7 +61,7 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
         }
 
         // Parallelize row operations to create upper triangular matrix
-        #pragma omp parallel for schedule(dynamic) shared(mat) // Parallelize row operations
+        #pragma omp parallel for schedule(dynamic, 4) shared(mat) // Parallelize row operations
         for (int row = i + 1; row < matrix.size; ++row) {
             double factor = mat[row * matrix.size * 2 + i] / mat[i * matrix.size * 2 + i];
             for (int j = i; j < matrix.size * 2; ++j) {
@@ -79,13 +79,13 @@ void parallel_reduce_to_unit(GaussianMatrix& matrix) {
     for (int i = matrix.size - 1; i >= 0; --i) {
         double factor = mat[i * matrix.size * 2 + i];
         
-        #pragma omp parallel for schedule(dynamic) shared(mat, factor)
+        #pragma omp parallel for schedule(dynamic, 4) shared(mat, factor)
         for (int j = 0; j < matrix.size * 2; ++j) {
             mat[i * matrix.size * 2 + j] /= factor;
         }
 
         // Parallelize back substitution
-        #pragma omp parallel for schedule(dynamic) shared(mat)
+        #pragma omp parallel for schedule(dynamic, 4) shared(mat)
         for (int row = i - 1; row >= 0; --row) {
             double factor = mat[row * matrix.size * 2 + i];
             for (int j = matrix.size * 2 - 1; j >= i; --j) {
