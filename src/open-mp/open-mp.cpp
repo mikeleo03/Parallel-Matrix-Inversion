@@ -69,20 +69,22 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
                 pivot_row = local_pivot_row;
                 pivot_value = local_pivot_value;
             }
-        }
 
-        // Swap rows if necessary
-        #pragma omp parallel for schedule(dynamic) shared(mat)
-        for (int k = 0; k < matrix.size * 2; ++k) {
-            swap(mat[i * matrix.size * 2 + k], mat[pivot_row * matrix.size * 2 + k]);
-        }
+            #pragma omp barrier
 
-        // Parallelize row operations to create upper triangular matrix
-        #pragma omp parallel for schedule(dynamic) shared(mat) // Parallelize row operations
-        for (int row = i + 1; row < matrix.size; ++row) {
-            double factor = mat[row * matrix.size * 2 + i] / mat[i * matrix.size * 2 + i];
-            for (int j = i; j < matrix.size * 2; ++j) {
-                mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * factor;
+            // Swap rows if necessary
+            #pragma omp for schedule(dynamic)
+            for (int k = 0; k < matrix.size * 2; ++k) {
+                swap(mat[i * matrix.size * 2 + k], mat[pivot_row * matrix.size * 2 + k]);
+            }
+
+            // Parallelize row operations to create upper triangular matrix
+            #pragma omp for schedule(dynamic)
+            for (int row = i + 1; row < matrix.size; ++row) {
+                double factor = mat[row * matrix.size * 2 + i] / mat[i * matrix.size * 2 + i];
+                for (int j = i; j < matrix.size * 2; ++j) {
+                    mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * factor;
+                }
             }
         }
     }
@@ -91,22 +93,25 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
 // Reduce the matrix to a unit matrix
 void parallel_reduce_to_unit(GaussianMatrix& matrix) {
     double *mat = matrix.mat;
+    double global_factor, local_factor;
 
     // Back substitution to obtain the inverse matrix
+    #pragma omp parallel shared(mat, global_factor) private(local_factor)
     for (int i = matrix.size - 1; i >= 0; --i) {
-        double factor = mat[i * matrix.size * 2 + i];
+        #pragma omp single
+        global_factor = mat[i * matrix.size * 2 + i];
         
-        #pragma omp parallel for schedule(dynamic) shared(mat, factor)
+        #pragma omp for schedule(dynamic)
         for (int j = 0; j < matrix.size * 2; ++j) {
-            mat[i * matrix.size * 2 + j] /= factor;
+            mat[i * matrix.size * 2 + j] /= global_factor;
         }
 
         // Parallelize back substitution
-        #pragma omp parallel for schedule(dynamic) shared(mat)
+        #pragma omp for schedule(dynamic)
         for (int row = i - 1; row >= 0; --row) {
-            double factor = mat[row * matrix.size * 2 + i];
+            local_factor = mat[row * matrix.size * 2 + i];
             for (int j = matrix.size * 2 - 1; j >= i; --j) {
-                mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * factor;
+                mat[row * matrix.size * 2 + j] -= mat[i * matrix.size * 2 + j] * local_factor;
             }
         }
     }
