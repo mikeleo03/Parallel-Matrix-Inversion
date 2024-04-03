@@ -66,16 +66,11 @@ mpi-debug:
 # Compile the OPEN MP
 compile-openmp: 
 	@g++ src/open-mp/open-mp.cpp --openmp -o $(OUTPUT_FOLDER)/open-mp -lm
-	@g++ src/open-mp/open-mp-leon.cpp --openmp -o $(OUTPUT_FOLDER)/open-mp-leon -lm
 
 # Run the OPEN MP in local
 openmp-local: 
 	@chmod +x ${OUTPUT_FOLDER}/open-mp
 	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
-
-openmp-local-leon: 
-	@chmod +x ${OUTPUT_FOLDER}/open-mp-leon
-	@time ${OUTPUT_FOLDER}/open-mp-leon < test_cases/2048.txt > ${TEST_FOLDER}/open-mp-leon.txt
 
 # Run the OPEN MP in server
 openmp: 

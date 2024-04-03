@@ -64,6 +64,7 @@ void parallel_partial_pivot(GaussianMatrix& matrix) {
                     local_pivot_value = abs(mat[row * matrix.size * 2 + i]);
                 }
             }
+            
             if (local_pivot_value > pivot_value) {
                 #pragma omp critical
                 pivot_row = local_pivot_row;
@@ -131,8 +132,6 @@ void print_result(GaussianMatrix& matrix) {
 int main() {
     // Initaite object
     GaussianMatrix matrix;
-    /* int num_threads = 16; // Set the desired number of threads
-    omp_set_num_threads(num_threads); */
     
     // Initialize the matrix based on user input
     initialize_matrix(matrix);
