@@ -13,10 +13,10 @@ Prosedur paralelisasi invers matriks berfokus pada penggunaan teknik *partial pi
    - Masing-masing thread mencari baris pivot terbaik dari baris matriks yang dialokasikan (menggunakan *static scheduling* pada for loop).
    - Thread mengupdate baris pivot global jika baris pivot lokal terbaik lebih baik dibanding pivot row global. Proses ini dikunci dengan `#pragma omp critical`.
    - Tunggu hingga semua baris mengecek apakah baris pivotnya merupakan yang terbaik.
-   - Tukar baris pivot dan baris yang sedang diiterasi (baris ke-$i$) jika keduanya tidak sama. Proses ini juga diparalelisasi ke semua thread.
+   - Tukar baris pivot dan baris yang sedang diiterasi (baris ke- $i$) jika keduanya tidak sama. Proses ini juga diparalelisasi ke semua thread.
    - Ubah matriks menjadi matriks segitiga atas secara paralel.
 3. Lakukan *back substitution* secara paralel. Prosesnya secara detail sebagai berikut.
-   - Bagi seluruh isi baris yang sedang diiterasi (baris ke-$i$) dengan *leading coefficient*-nya.
+   - Bagi seluruh isi baris yang sedang diiterasi (baris ke- $i$) dengan *leading coefficient*-nya.
    - Kurangi semua baris lain dengan hasil perkalian baris $i$ secara paralel.
 
 ## 🔍 &nbsp;Analisis Implementasi Solusi
