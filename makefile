@@ -10,7 +10,7 @@ all: openmp mpi serial
 
 # COMPARE
 compare:
-	@diff -s ${TEST_FOLDER}/open-mp-leon.txt ${TEST_FOLDER}/open-mp.txt
+	@diff -s ${TEST_FOLDER}/cuda.txt ${TEST_FOLDER}/open-mp.txt
 
 # TEST CASE
 # Make test case
