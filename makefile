@@ -76,3 +76,11 @@ openmp-local:
 openmp: 
 	@chmod +x ${OUTPUT_FOLDER}/open-mp
 	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
+
+# CUDA
+# Compile the CUDA
+compile-cuda: 
+	@nvcc src/cuda/cuda.cu -o $(OUTPUT_FOLDER)/cuda -lm
+
+cuda:
+	@time ${OUTPUT_FOLDER}/cuda < test_cases/2048.txt > ${TEST_FOLDER}/cuda.txt
