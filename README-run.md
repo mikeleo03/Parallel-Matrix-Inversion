@@ -1,8 +1,8 @@
-# ⚙️🤔 *How to Run the program*
+# ⚙️🤔 *How to Run the program?*
 Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggunakan server, hingga apa yang harus dilakukan jika melakukan *additional changes*.
 
 ## 🔑 &nbsp;*Initialize* SSH
-1. *Download* 2 file ssh  [disini](https://drive.google.com/drive/folders/1rCcgEeF72cAzuxSro-eWT64wC0jnG7h6?usp=sharing), kemudian *download* yang ```k02-05``` dan ```k02-05.pub```.
+1. Buka direktori kumpulan ssh yang disediakan asisten  [disini](https://drive.google.com/drive/folders/1rCcgEeF72cAzuxSro-eWT64wC0jnG7h6?usp=sharing), kemudian *download* ```k02-05``` dan ```k02-05.pub```.
 2. Jika menggunakan WSL, setelah di *download*, pindahkan SSH key (keduanya) ke *directory* WSL ```(/home/[username]/)```. Bukan pada *directory* Windows ```(/mnt/[drive letter]/[any]/**/*)```. Masukkan kedanya di folder ```.ssh```.
 3. *Edit permission* SSH key dengan ```chmod```.
     ```bash
@@ -13,7 +13,7 @@ Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggun
     ```bash
     $ ssh-add ~/.ssh/k02-05
     ```
-5. Bikin *authorization keys* SSH nya *available*.
+5. Ubah *authorization keys* SSH nya agar *available*.
     ```bash
     $ cd ~/.ssh/
     $ sudo nano authorized_keys
@@ -25,7 +25,7 @@ Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggun
     $ cd ..
     $ sudo nano /etc/ssh/sshd_config
     ```
-    Selanjutnya akan muncul *code editor* nano. Jika berhasil, masukkan 2 *permission* ini ke *code editor* nano nya
+    Selanjutnya akan muncul *code editor* nano. Jika berhasil, masukkan 2 *permission* ini ke *code editor* nano nya.
     ```bash
     PasswordAuthentication no
     PubkeyAuthentication yes
@@ -33,7 +33,7 @@ Berikut adalah cara untuk melakukan segala *setup*, mulai dari SSH, cara menggun
     Jika sudah, jangan lupa untuk melakukan *save* (```Ctrl + S```) dan *exit* (```Ctrl + X```).
 7. Jika semua langkah diatas sudah dilakukan, SSH sudah siap untuk menembak server!
 
-## 🗄️ &nbsp;Menggunakan Server
+## 🗄️ &nbsp;Menggunakan Server (Khusus Serial, MPI, dan OpenMP)
 1. Hubungkan dengan salah satu server menggunakan SSH melewati IP publik. 
 IP publik yang disediakan asisten, ada 2 yaitu.
     ```
@@ -49,7 +49,7 @@ IP publik yang disediakan asisten, ada 2 yaitu.
     - Jika SSH key *public* 4.145.183.206, maka *private* nya ada 10.0.1.7 dan 10.0.1.4
     - Jika SSH key public 4.145.178.6, maka *private* nya ada 10.0.1.6 dan 10.0.1.5 <br>
     
-    Caranya, tanpa merubah apapun, ketik dua *command* berikut secara bergantian (dalam kasus ini, digunakan IP publik pertama)
+    Caranya, tanpa merubah apapun, ketik dua *command* berikut secara bergantian (dalam kasus ini, digunakan IP publik pertama).
     ```base
     $ ssh k02-05@10.0.1.7
     $ ssh k02-05@10.0.1.4
@@ -63,13 +63,17 @@ IP publik yang disediakan asisten, ada 2 yaitu.
     $ echo -e "10.0.1.7\n10.0.1.4" > hostname
     ```
 5. *Compile* program yang baru saja dibuat dengan *command* berikut.
-    - Untuk Serial, jalankan *command* dibawah
+    - Untuk Serial, jalankan *command* dibawah.
         ```bash
         $ make compile-serial
         ```
-    - Untuk MPI, jalankan *command* dibawah
+    - Untuk MPI, jalankan *command* dibawah.
         ```bash
         $ make compile-mpi
+        ```
+    - Untuk OpenMP, jalankan *command* dibawah.
+        ```bash
+        $ make compile-openmp
         ```
     Selanjutnya, salin *executable*, *test cases*, makefile, dan *result* *folder* ke semua server menggunakan `scp`. Dapat dilakukan dengan menjalankan command berikut.
     ```bash
@@ -80,54 +84,57 @@ IP publik yang disediakan asisten, ada 2 yaitu.
     $ make copy-branch-server
     ```
     Kemudian untuk menjalankan program ketikkan *command* dibawah.
-    - Untuk Serial, jalankan *command* dibawah
+    - Untuk Serial, jalankan *command* dibawah.
         ```bash
         $ make serial
         ```
-    - Untuk MPI, chmod +x executable dan jalankan dengan mpirun, pada *command* dibawah, MPI dijalankan dengan 2 process
+    - Untuk MPI, chmod +x executable dan jalankan dengan mpirun, pada *command* dibawah, MPI dijalankan dengan 4 process.
         ```bash
         $ make mpi
         ```
-    - Untuk OpenMP, chmod +x executable dan jalankan dengan mpirun, pada *command* dibawah
+    - Untuk OpenMP, chmod +x executable dan jalankan dengan mpirun, pada *command* dibawah.
         ```bash
         $ make openmp
         ```
+        Sebagai catatan, untuk OpenMP tidak perlu melakukan *copy branch server*.
 7. Jika semua prosedur diatas dijalankan, maka seharusnya program dapat berjalan dengan baik!
+
+## 📣 &nbsp;Menggunakan *Google Colaboratory* (Khusus CUDA)
+Pastikan sistem yang digunakan memiliki Nvidia GPU yang telah terkonfigurasi dengan baik. **Jika tidak memiliki** sistem dengan spesifikasi tersebut, gunakan Google Colaboratory. [Berikut adalah tautan Google Colaboratory kami](https://colab.research.google.com/drive/1cF4z5fDxZ-cc1BMmCDt6kDKnuUurFNwn?usp=sharing).
 
 ## 🛠️ &nbsp;*Additional Changes*
 Jika sebelumnya sudah melakukan prosedur diatas dan melakukan perubahan yang ingin di *update*, maka kedepannya yang perlu dilakukan hanya *run command* berikut.
-1. Untuk Serial, jalankan *command* di bawah
+1. Untuk Serial, jalankan *command* di bawah.
     ```bash
     $ make compile-serial
     $ make copy-server
     $ make serial
     ```
-2. Untuk MPI, jalankan *command* di bawah
+2. Untuk MPI, jalankan *command* di bawah.
     ```bash
     $ make compile-mpi
     $ make copy-server
     $ make copy-branch-server
     $ make mpi
     ```
-    Untuk menjalankannya secara lokal, jalankan *command* dibawah
+    Untuk menjalankannya secara lokal, jalankan *command* dibawah.
     ```bash
     $ make compile-mpi
     $ make mpi-local
     ```
-    Untuk menjalankan debugger dengan valgrind (pastikan sudah menginstall sebelumnya), jalankan *command* dibawah
+    Untuk menjalankan debugger dengan `valgrind` (pastikan sudah menginstall sebelumnya), jalankan *command* dibawah.
     ```bash
     $ make compile-mpi
     $ make mpi-debug
     ```
     Anda juga dapat mengubah konfigurasi jumlah proses dengan mengubah langsung konfigurasi makefile.
-3. Untuk OpenMP, jalankan *command* di bawah
+3. Untuk OpenMP, baik secara lokal maupun server, jalankan *command* di bawah.
     ```bash
     $ make compile-openmp
-    $ make copy-server
     $ make openmp
     ```
-    Untuk menjalankannya secara lokal, jalankan *command* dibawah
+4. Untuk CUDA, jalankan *command* di bawah.
     ```bash
-    $ make compile-openmp
-    $ make openmp-local
+    $ make compile-cuda
+    $ make cuda
     ```

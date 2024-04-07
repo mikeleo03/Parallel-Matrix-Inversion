@@ -4,9 +4,9 @@ TEST_FOLDER = result
 
 # JOIN
 # Run all
-all-local: openmp-local mpi-local serial
-all-compile: compile-serial compile-mpi compile-openmp
-all: openmp mpi serial
+all-local: cuda openmp mpi-local serial
+all-compile: compile-cuda compile-openmp compile-mpi compile-serial
+all: cuda openmp mpi serial
 
 # COMPARE
 compare:
@@ -67,12 +67,7 @@ mpi-debug:
 compile-openmp: 
 	@g++ src/open-mp/open-mp.cpp --openmp -o $(OUTPUT_FOLDER)/open-mp -lm
 
-# Run the OPEN MP in local
-openmp-local: 
-	@chmod +x ${OUTPUT_FOLDER}/open-mp
-	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
-
-# Run the OPEN MP in server
+# Run the OPEN MP
 openmp: 
 	@chmod +x ${OUTPUT_FOLDER}/open-mp
 	@time ${OUTPUT_FOLDER}/open-mp < test_cases/2048.txt > ${TEST_FOLDER}/open-mp.txt
@@ -82,5 +77,6 @@ openmp:
 compile-cuda: 
 	@nvcc src/cuda/cuda.cu -o $(OUTPUT_FOLDER)/cuda -lm
 
+# Run the CUDA
 cuda:
 	@time ${OUTPUT_FOLDER}/cuda < test_cases/2048.txt > ${TEST_FOLDER}/cuda.txt
