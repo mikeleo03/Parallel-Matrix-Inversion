@@ -71,7 +71,11 @@ void matrix_inversion_cuda(GaussianMatrix& matrix) {
     double *d_matrix;
 
     // Allocate GPU memory for the matrix and copy the value
-    cudaMalloc(&d_matrix, size * size * 2 * sizeof(double));
+    cudaError_t err = cudaMalloc(&d_matrix, size * size * 2 * sizeof(double));
+    if (err != cudaSuccess) {
+        printf("%s in %s at line %d\n", cudaGetErrorString(err), __FILE__,__LINE__);
+        exit(EXIT_FAILURE);
+    }
     cudaMemcpy(d_matrix, matrix.mat, size * size * 2 * sizeof(double), cudaMemcpyHostToDevice);
 
     // Define the value of thread per block and block per grid
