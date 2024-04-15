@@ -54,11 +54,11 @@ __global__ void gaussian_elimination_kernel(double *matrix, int size, int pivot)
 __global__ void reduce_to_unit_kernel(double *matrix, int size, int pivot) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
-    if (idx < size && idx == pivot) {
-        double pivot_value = matrix[idx * size * 2 + pivot];
+    if (idx < size) {
+        double pivot_value = matrix[pivot * size * 2 + pivot];
         if (pivot_value != 0.0) {
-            for (int j = idx; j < 2 * size; ++j) {
-                matrix[idx * size * 2 + j] /= pivot_value;
+            for (int j = idx * 2; j < (idx * 2) + 2; ++j) {
+                matrix[pivot * size * 2 + j] /= pivot_value;
             }
         }
     }
