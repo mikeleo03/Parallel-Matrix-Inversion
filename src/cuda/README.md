@@ -16,7 +16,7 @@ Prosedur inversi matriks menggunakan CUDA memanfaatkan kemampuan pemrosesan para
    - Lakukan proses eliminasi Gaussian pada setiap pivot:
       - **Eliminasi Gaussian**: Untuk setiap baris selain pivot, kurangi baris tersebut dengan baris pivot yang telah dikalikan dengan rasio yang sesuai. Rasio dihitung berdasarkan elemen diagonal pada baris pivot. Proses ini dilakukan paralel untuk semua elemen di bawah pivot.
       - **Sinkronisasi CUDA**: Tunggu semua thread selesai menjalankan kernel eliminasi Gaussian sebelum melanjutkan.
-      - **Reduksi ke Unit Matriks**: Setiap elemen di baris pivot dibagi dengan nilai pivot, normalisasi baris pivot. Setiap thread menangani satu elemen dari baris pivot secara paralel.
+      - **Reduksi ke Unit Matriks**: Setiap elemen di baris pivot dibagi dengan nilai pivot, normalisasi baris pivot. Setiap thread menangani dua elemen dari baris pivot secara paralel.
       - **Sinkronisasi CUDA**: Tunggu semua thread selesai menjalankan kernel reduksi sebelum melanjutkan ke pivot berikutnya.
 5. Setelah semua pivot diproses dan matriks di GPU telah menjadi invers, salin kembali matriks hasil ke memori host.
 6. Tampilkan matriks invers yang telah dihasilkan. Matriks ini adalah bagian kanan dari matriks $n \times 2n$ di mana setiap elemen menunjukkan nilai matriks invers.
